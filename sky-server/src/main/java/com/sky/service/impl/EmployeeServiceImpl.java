@@ -117,9 +117,6 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @param employeeDTO
      */
     public void updateEmployee(EmployeeDTO employeeDTO) {
-        if (employeeDTO.getId() == null) {
-            throw new BaseException("员工id不能为空");
-        }
         Employee newEmp = new Employee();
         BeanUtils.copyProperties(employeeDTO,newEmp);
         newEmp.setUpdateUser(BaseContext.getCurrentId());
