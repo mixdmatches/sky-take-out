@@ -17,5 +17,4 @@ public interface EmployeeMapper extends BaseMapper<Employee> {
         return selectOne(new LambdaQueryWrapper<Employee>()
                 .eq(Employee::getUsername, username));
     }
-
 }

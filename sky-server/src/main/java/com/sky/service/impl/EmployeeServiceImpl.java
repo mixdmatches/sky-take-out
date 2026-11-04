@@ -79,7 +79,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 查询条件
         LambdaQueryWrapper<Employee> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(StringUtils.hasText(name),Employee::getName,name)
-                .eq(Employee::getStatus,1)
                 .orderByDesc(Employee::getUpdateTime);
         employeeMapper.selectPage(ipage,wrapper);
         return new PageResult(ipage.getTotal(),ipage.getRecords());
@@ -99,6 +98,16 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
         employee.setStatus(StatusConstant.ENABLE);
         employeeMapper.insert(employee);
+    }
+
+    /**
+     * 启用/禁用员工状态
+     * @param status
+     * @param id
+     */
+    public void changeStatus(Integer status,Long id) {
+        Employee employee = Employee.builder().id(id).status(status).build();
+        employeeMapper.updateById(employee);
     }
 
 }

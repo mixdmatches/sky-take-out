@@ -1,6 +1,5 @@
 package com.sky.controller.admin;
 
-import com.github.pagehelper.autoconfigure.PageHelperProperties;
 import com.sky.constant.JwtClaimsConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
@@ -32,8 +31,6 @@ public class EmployeeController {
     private EmployeeService employeeService;
     @Autowired
     private JwtProperties jwtProperties;
-    @Autowired
-    private PageHelperProperties pageHelperProperties;
 
     /**
      * 登录
@@ -90,6 +87,18 @@ public class EmployeeController {
         }
         if(idNumber != null && idNumber.length() > 18) throw new BaseException("身份证号长度超过18位");
         employeeService.addEmpl(employeeDTO);
+        return Result.success();
+    }
+
+    /**
+     * 启用禁用员工状态
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    public Result changeStatus(@PathVariable Integer status, @RequestParam Long id){
+        employeeService.changeStatus(status,id);
         return Result.success();
     }
 
