@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -13,6 +14,7 @@ import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
+import com.sky.exception.BaseException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.result.PageResult;
@@ -108,6 +110,32 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void changeStatus(Integer status,Long id) {
         Employee employee = Employee.builder().id(id).status(status).build();
         employeeMapper.updateById(employee);
+    }
+
+    /**
+     * 修改员工信息
+     * @param employeeDTO
+     */
+    public void updateEmployee(EmployeeDTO employeeDTO) {
+        if (employeeDTO.getId() == null) {
+            throw new BaseException("员工id不能为空");
+        }
+        Employee newEmp = new Employee();
+        BeanUtils.copyProperties(employeeDTO,newEmp);
+        newEmp.setUpdateUser(BaseContext.getCurrentId());
+        newEmp.setUpdateTime(LocalDateTime.now());
+        employeeMapper.updateById(newEmp);
+    }
+
+    /**
+     * 根据id获取员工信息
+     * @param id
+     * @return
+     */
+    public Employee getById(Long id) {
+        Employee emp =  employeeMapper.selectById(id);
+        emp.setPassword("****");
+        return emp;
     }
 
 }
