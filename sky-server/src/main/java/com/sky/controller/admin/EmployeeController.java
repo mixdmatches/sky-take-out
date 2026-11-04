@@ -4,9 +4,11 @@ import com.github.pagehelper.autoconfigure.PageHelperProperties;
 import com.sky.constant.JwtClaimsConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.BaseException;
 import com.sky.properties.JwtProperties;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
@@ -16,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,12 +65,22 @@ public class EmployeeController {
         return Result.success(employeeLoginVO);
     }
 
+    /**
+     * 分页查询
+     * @param employeePageQueryDTO
+     * @return
+     */
     @GetMapping("/page")
-    public Result getPageEmpl(@RequestParam String name,@RequestParam Integer page,@RequestParam Integer pageSize){
-        List<Employee> employeeList = employeeService.getPageEmpl(name,page,pageSize);
-        return Result.success(employeeList);
+    public Result<PageResult> getPageEmpl(EmployeePageQueryDTO employeePageQueryDTO) {
+        PageResult pr = employeeService.getPageEmpl(employeePageQueryDTO);
+        return Result.success(pr);
     }
 
+    /**
+     * 添加员工
+     * @param employeeDTO
+     * @return
+     */
     @PostMapping
     public Result addEmpl(@RequestBody EmployeeDTO employeeDTO){
         String phone = employeeDTO.getPhone();
