@@ -1,4 +1,4 @@
-package com.sky.controller.admin;
+package com.sky.controller.user;
 
 import com.sky.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class ShopController {
      * 获取营业状态
      * @return
      */
-    @GetMapping("status")
+    @GetMapping("/status")
     public Result<Integer> getShop(){
         ValueOperations valueOperations = redisTemplate.opsForValue();
         Integer status = (Integer) valueOperations.get("SHOP_STATUS");
