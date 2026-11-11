@@ -31,6 +31,10 @@ public class DishController {
     @PostMapping
     public Result save(@RequestBody DishDTO dishDTO){
         dishService.save(dishDTO);
+
+        // 删除缓存
+        cleanCache("dish_*");
+
         return Result.success();
     }
 

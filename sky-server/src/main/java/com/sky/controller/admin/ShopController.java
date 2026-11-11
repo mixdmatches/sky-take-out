@@ -1,4 +1,4 @@
-package com.sky.controller.user;
+package com.sky.controller.admin;
 
 import com.sky.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
