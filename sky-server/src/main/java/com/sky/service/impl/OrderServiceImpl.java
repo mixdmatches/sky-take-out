@@ -1,6 +1,7 @@
 package com.sky.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -69,6 +70,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setNumber(String.valueOf(System.currentTimeMillis()));
         orders.setPhone(addressBook.getPhone());
         orders.setConsignee(addressBook.getConsignee());
+        orders.setAddress(addressBook.getProvinceName() + addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail());
         orders.setUserId(userId);
 
         orderMapper.insert(orders);
@@ -267,5 +269,42 @@ public class OrderServiceImpl implements OrderService {
 
         // 将购物车对象批量添加到数据库
         shoppingCartMapper.insert(shoppingCartList);
+    }
+
+    /**
+     * 订单搜索
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        Page<Orders> page = new Page<>(ordersPageQueryDTO.getPage(),ordersPageQueryDTO.getPageSize());
+        orderMapper.selectPage(page,Wrappers.<Orders>lambdaQuery()
+                .eq(ordersPageQueryDTO.getPhone() != null,Orders::getPhone,ordersPageQueryDTO.getPhone())
+                .eq(ordersPageQueryDTO.getStatus() != null,Orders::getStatus,ordersPageQueryDTO.getStatus())
+                .eq(ordersPageQueryDTO.getNumber()!=null,Orders::getNumber,ordersPageQueryDTO.getNumber())
+                .ge(ordersPageQueryDTO.getBeginTime() != null, Orders::getOrderTime, ordersPageQueryDTO.getBeginTime())
+                .le(ordersPageQueryDTO.getEndTime() != null, Orders::getOrderTime, ordersPageQueryDTO.getEndTime()));
+        List<OrderVO> orderVOList = new ArrayList<>();
+        for (Orders orders : page.getRecords()) {
+            OrderVO orderVO = new OrderVO();
+            BeanUtils.copyProperties(orders, orderVO);
+            orderVO.setOrderDishes(getOrderDishesStr(orders));
+            orderVOList.add(orderVO);
+        }
+        return new PageResult(page.getTotal(), orderVOList);
+    }
+
+    /**
+     * 拼接订单菜品名称
+     * @param orders
+     * @return
+     */
+    private String getOrderDishesStr(Orders orders) {
+        List<OrderDetail> orderDetailList = orderDetailMapper.selectList(
+                Wrappers.<OrderDetail>lambdaQuery()
+                        .eq(OrderDetail::getOrderId, orders.getId()));
+        return orderDetailList.stream()
+                .map(OrderDetail::getName)
+                .collect(Collectors.joining(","));
     }
 }
