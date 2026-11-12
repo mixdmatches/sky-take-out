@@ -67,8 +67,7 @@ public class WeChatPayUtil {
             CloseableHttpClient httpClient = builder.build();
             return httpClient;
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("微信支付商户私钥或平台证书文件不存在，请检查 private-key-file-path / we-chat-pay-cert-file-path 配置：" + e.getMessage(), e);
         }
     }
 

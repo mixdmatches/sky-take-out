@@ -19,6 +19,7 @@ import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
@@ -224,11 +225,11 @@ public class OrderServiceImpl implements OrderService {
         // 订单处于待接单状态下取消，需要进行退款
         if (ordersDB.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
             //调用微信支付退款接口
-            weChatPayUtil.refund(
-                    ordersDB.getNumber(), //商户订单号
-                    ordersDB.getNumber(), //商户退款单号
-                    new BigDecimal(0.01),//退款金额，单位 元
-                    new BigDecimal(0.01));//原订单金额
+//            weChatPayUtil.refund(
+//                    ordersDB.getNumber(), //商户订单号
+//                    ordersDB.getNumber(), //商户退款单号
+//                    new BigDecimal(0.01),//退款金额，单位 元
+//                    new BigDecimal(0.01));//原订单金额
 
             //支付状态修改为 退款
             orders.setPayStatus(Orders.REFUND);
@@ -292,6 +293,28 @@ public class OrderServiceImpl implements OrderService {
             orderVOList.add(orderVO);
         }
         return new PageResult(page.getTotal(), orderVOList);
+    }
+
+    /**
+     * 各个状态的订单数量统计
+     * @return
+     */
+    public OrderStatisticsVO statistics() {
+        // 待接单
+        Long toBeConfirmed = orderMapper.selectCount(Wrappers.<Orders>lambdaQuery()
+                .eq(Orders::getStatus,Orders.TO_BE_CONFIRMED));
+        // 待派送
+        Long confirmed = orderMapper.selectCount(Wrappers.<Orders>lambdaQuery()
+                .eq(Orders::getStatus,Orders.CONFIRMED));
+        // 派送中
+        Long deliveryInProgress = orderMapper.selectCount(Wrappers.<Orders>lambdaQuery()
+                .eq(Orders::getStatus,Orders.DELIVERY_IN_PROGRESS));
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setToBeConfirmed(Math.toIntExact(toBeConfirmed));
+        orderStatisticsVO.setConfirmed(Math.toIntExact(confirmed));
+        orderStatisticsVO.setDeliveryInProgress(Math.toIntExact(deliveryInProgress));
+        return orderStatisticsVO;
+
     }
 
     /**
